@@ -1,0 +1,7 @@
+*.pdf
+*.bkp
+.vscode
+__pycache__
+htmlcov
+workspace
+pdf-parser.py
