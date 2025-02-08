@@ -25,7 +25,9 @@ def write_file(file: Path, text: str, page_no: int):
 
         final_text = f"""
 ---
-Created: {datetime.now().isoformat(timespec="seconds")}
+
+# Created: {datetime.now().isoformat(timespec="seconds")}
+
 ---\n\n{text}"""
 
         file.write_text(final_text)
@@ -43,7 +45,7 @@ def main():
 
     file_path = Path(sys.argv[1]).expanduser()
     pdf = PDF(file_path)
-    workspace = Path(sys.argv[2])
+    workspace = Path(sys.argv[2]).expanduser()
     page_start, page_end = int(sys.argv[3]), int(sys.argv[4])
     bookname = workspace / file_path.stem
 
@@ -59,11 +61,10 @@ def main():
             logging.info(f"No text to process on page {page_no}. Skipping.")
             continue
 
-        print(headers_per_page)
-        subfolder1 = bookname / headers_per_page[0][1]
-        file = (subfolder1 / f"{headers_per_page[1][1]}.md").expanduser()
+        subfolder = (bookname / headers_per_page[0][1]).expanduser()
+        file = (subfolder / f"{headers_per_page[1][1]}.md").expanduser()
 
-        create_folder(subfolder1)
+        create_folder(subfolder)
         write_file(file, text, page_no)
 
 if __name__ == "__main__":
