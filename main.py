@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 
 import logging
+import json
+import argparse
 import sys
 from datetime import datetime
 
@@ -54,17 +56,20 @@ def write_file(file: Path, text: str, page_no: int):
                 logging.info(f"Markdown file exist, using existing file '{file}' with PDF page {page_no}")
                 f.write(text)
 
-def main():
-    if len(sys.argv) < 5:
-        logging.error("Arguments missing, expected " \
-                      "<PDF file path> <markdown workspace> " \
-                      "<page number start> <page number end>")
-        sys.exit(1)
+def load_config(config_path: str) -> dict:
+    with open(config_path, "r", encoding="utf-8") as file:
+        return json.load(file)
 
-    file_path = Path(sys.argv[1]).expanduser()
+def main():
+    parser = argparse.ArgumentParser(description="Process PDF highlighted text and generate markdown file")
+    parser.add_argument("--config", help="JSON configuration file path", default="config.json")
+    args = parser.parse_args()
+    config = load_config(args.config)
+
+    file_path = Path(config["pdf_path"]).expanduser()
     pdf = PDF(file_path)
-    workspace = Path(sys.argv[2]).expanduser()
-    page_start, page_end = int(sys.argv[3]), int(sys.argv[4])
+    workspace = Path(config["markdown_workspace"]).expanduser()
+    page_start, page_end = int(config["page_start"]), int(config["page_end"])
     bookname = workspace / file_path.stem
 
     create_folder(bookname)
