@@ -3,6 +3,15 @@
 
 - Somehow if we have something like this `My text\n\n\n`, the method `rstrip()` was causing issues removing the `\n`, introducing a subtle bug where the last header didn't have the correct amount of `\n`
 - There could be some cases where there is a new paragraph when there isn't, like for example in the same paragraph at the end of the line there is a word with a dot, all text next to that word will be in a new paragraph.
+- If we want to detect headers that have the same size but they are bold and have a words threshold, it partially works, for example:
+
+`if span["size"] > threshold or "bold" in font and len(font.split()) < self.WORDS_THRESHOLD:`
+
+This works but if the paragraph has this situation where we have the next text, the phrase **IT’S POSSIBLE FOR** will be taken as a header:
+
+> **IT’S POSSIBLE FOR** a person to have an overwhelming number of things to do and still function productively with a clear head and a positive sense of relaxed control. That’s a great way to live and work, at elevated levels of...
+
+
 
 # TODO
 

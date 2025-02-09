@@ -3,7 +3,6 @@
 import logging
 import json
 import argparse
-import sys
 from datetime import datetime
 
 from pathlib import Path
@@ -72,6 +71,8 @@ def main():
     page_start, page_end = int(config["page_start"]), int(config["page_end"])
     bookname = workspace / file_path.stem
 
+    last_file = ""
+
     create_folder(bookname)
     for page_no in range(page_start, page_end):
         pdf.setup_page(page_no)
@@ -84,11 +85,15 @@ def main():
             logging.info(f"No text to process on page {page_no}. Skipping.")
             continue
 
-        subfolder = (bookname / headers_per_page[0][1]).expanduser()
-        file = (subfolder / f"{headers_per_page[1][1]}.md").expanduser()
+        # As long as the page have headers, create the corresponding md file
+        # otherwise use the last md file.
+        if headers_per_page:
+            subfolder = (bookname / headers_per_page[0][1]).expanduser()
+            file = (subfolder / f"{headers_per_page[1][1]}.md").expanduser()
+            last_file = file
+            create_folder(subfolder)
 
-        create_folder(subfolder)
-        write_file(file, text, page_no)
+        write_file(last_file, text, page_no)
 
 if __name__ == "__main__":
     main()

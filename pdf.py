@@ -13,6 +13,10 @@ class PDF:
     # enough to consider them new lines this value can be adjusted as needed.
     VERTICAL_THRESHOLD: Final = 5
 
+    # Used to identify headers, usually headers don't have as many words as
+    # normal text.
+    WORDS_THRESHOLD: Final = 10
+
     def __init__(self, pdf_path: str):
         self.doc = pymupdf.open(pdf_path)
         self.page: Optional[pymupdf.Page] = None
@@ -141,6 +145,13 @@ class PDF:
             self.headers = []
 
         self.headers_per_page = self.headers_per_page[::-1]
+
+        headers = []
+        # Remove duplicates, there are some cases where duplicates might exist
+        for header in self.headers_per_page:
+            if header not in headers:
+                headers.append(header)
+        self.headers_per_page = headers
         return self.headers_per_page
 
     def plain_text_to_markdown(self) -> str:
@@ -166,8 +177,13 @@ class PDF:
                 h_clean = re.sub(pattern, "", h[4]).strip()
                 normalized_h_clean = unicodedata.normalize("NFKD", h_clean)
                 # Unicode to remove ligatures
-                if normalized_h_clean == normalized_header_clean:
-                    self.headers[i] = h[:4] + (f"{'#' * (level - 1)} {h[4]}",)
+                # if normalized_h_clean == normalized_header_clean:
+                if normalized_h_clean in normalized_header_clean:
+                    self.headers[i] = h[:4] + (f"{'#' * (level)} {h[4]}",)
+
+        # Clean headers
+        temp_headers = [header for header in self.headers if "#" in header[4]]
+        self.headers = temp_headers
 
         used_headers = set()
         final_text = []
@@ -185,15 +201,15 @@ class PDF:
             if self.headers:
                 for header_index, header in enumerate(self.headers):
                     # Get the ranges between headers
-                    header_y1 = self.headers[header_index][3]
+                    current_header_y1 = self.headers[header_index][3]
                     # Avoid to get the last header
-                    header_y2 = self.headers[header_index + 1][3] \
+                    next_header_y2 = self.headers[header_index + 1][3] \
                         if header_index + 1 < len(self.headers) \
                         else float("inf")
 
                     # Insert the header if our highlight text corresponds to that header by
                     # checking the range between headers.
-                    if header_index not in used_headers and header_y1 < word_y < header_y2:
+                    if header_index not in used_headers and current_header_y1 < word_y < next_header_y2:
                         new_value = "\n\n\n" + header[-1] + "\n\n\n"
                         final_text.append(header[:4] + (new_value,))
                         used_headers.add(header_index)
@@ -456,7 +472,11 @@ class PDF:
         threshold = self.__calculate_dynamic_threshold(font_sizes)
 
         def collect_headers(span):
-            if span["size"] > threshold:
+            font = span["font"].lower()
+            # Sometimes headers have the same size but they are bold, in order to identify
+            # them, we take in consideration they are bold and they have less words than normal text.
+            # if span["size"] > threshold or "bold" in font and len(font.split()) < self.WORDS_THRESHOLD:
+            if span["size"] > threshold or "bold" in font and len(font.split()) < self.WORDS_THRESHOLD:
                 header = (*span["bbox"], span["text"])
                 headers.append(header)
 

@@ -167,12 +167,12 @@ class TestPDF(unittest.TestCase):
 
     def test__extract_headers(self,):
         text_spans = [
-            {"bbox": (0, 0, 50, 10), "size": 15, "text": "Header1"},
-            {"bbox": (0, 10, 50, 20), "size": 16, "text": "Subheader1"},
-            {"bbox": (0, 20, 50, 30), "size": 15, "text": "Header2"},
-            {"bbox": (0, 25, 50, 35), "size": 12, "text": "Content"},
-            {"bbox": (0, 30, 50, 40), "size": 16, "text": "Subheader2"},
-            {"bbox": (0, 31, 50, 41), "size": 16, "text": "Subheader3"}
+            {"bbox": (0, 0, 50, 10), "size": 15, "text": "Header1", "font": "myfont-bold"},
+            {"bbox": (0, 10, 50, 20), "size": 16, "text": "Subheader1", "font": "myfont-bold"},
+            {"bbox": (0, 20, 50, 30), "size": 15, "text": "Header2", "font": "myfont-bold"},
+            {"bbox": (0, 25, 50, 35), "size": 12, "text": "Content", "font": "myfont"},
+            {"bbox": (0, 30, 50, 40), "size": 16, "text": "Subheader2", "font": "myfont-bold"},
+            {"bbox": (0, 31, 50, 41), "size": 16, "text": "Subheader3", "font": "bold"}
         ]
 
         expected_headers = [
@@ -186,8 +186,8 @@ class TestPDF(unittest.TestCase):
 
     def test__extract_headers_one_main_header_one_sub_header(self):
         text_spans = [
-            {"bbox": (0, 0, 50, 10), "size": 18, "text": "Header1"},
-            {"bbox": (0, 10, 50, 20), "size": 16, "text": "Subheader1"},
+            {"bbox": (0, 0, 50, 10), "size": 18, "text": "Header1", "font": "myfont"},
+            {"bbox": (0, 10, 50, 20), "size": 16, "text": "Subheader1", "font": "mufont-bold"},
         ]
 
         expected_headers = [
@@ -199,8 +199,8 @@ class TestPDF(unittest.TestCase):
 
     def test__extract_headers_one_sub_header_one_main_header(self):
         text_spans = [
-            {"bbox": (0, 10, 50, 10), "size": 16, "text": "Subheader1"},
-            {"bbox": (0, 0, 50, 20), "size": 18, "text": "Header1"},
+            {"bbox": (0, 10, 50, 10), "size": 16, "text": "Subheader1", "font": "myfont"},
+            {"bbox": (0, 0, 50, 20), "size": 18, "text": "Header1", "font": "font"},
         ]
 
         expected_headers = [
@@ -212,9 +212,9 @@ class TestPDF(unittest.TestCase):
 
     def test__extract_headers_separated(self):
         text_spans = [
-            {"bbox": (0, 0, 50, 10.3123), "size": 16, "text": "- "},
-            {"bbox": (0, 10, 50, 10.3223), "size": 16, "text": "Main header"},
-            {"bbox": (0, 10, 50, 14), "size": 15, "text": "Sub header"},
+            {"bbox": (0, 0, 50, 10.3123), "size": 16, "text": "- ", "font": "myfont-bold"},
+            {"bbox": (0, 10, 50, 10.3223), "size": 16, "text": "Main header", "font": "myfont-bold"},
+            {"bbox": (0, 10, 50, 14), "size": 15, "text": "Sub header", "font": "myfont-bold"},
         ]
 
         expected_headers = [
@@ -226,8 +226,8 @@ class TestPDF(unittest.TestCase):
 
     def test__extract_headers_separated_02(self):
         text_spans = [
-            {"bbox": (0, 0, 50, 335.7464599609375), "size": 16, "text": "O"},
-            {"bbox": (0, 10, 50, 335.7285461425781), "size": 16, "text": '-notation'}
+            {"bbox": (0, 0, 50, 335.7464599609375), "size": 16, "text": "O", "font": "myfont-bold"},
+            {"bbox": (0, 10, 50, 335.7285461425781), "size": 16, "text": '-notation', "font": "myfont-bold"}
         ]
 
         expected_headers = [
